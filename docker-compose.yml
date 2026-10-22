@@ -1,0 +1,32 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      PORT: "8000"
+      DATABASE_URL: sqlite:////data/framefit.db
+      LOCAL_STORAGE_DIR: /data/assets
+      YOLO_CACHE_DIR: /data/models
+      STORAGE_BACKEND: local
+    volumes:
+      - framefit-data:/data
+  frontend:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - frontend-modules:/app/node_modules
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+    depends_on:
+      - backend
+
+volumes:
+  framefit-data:
+  frontend-modules:
